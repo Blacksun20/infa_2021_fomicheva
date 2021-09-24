@@ -1,4 +1,3 @@
-"я тебя ненавижу-вижу, но ко мне ты все ближе"
 import turtle as t
 from random import randint
 
