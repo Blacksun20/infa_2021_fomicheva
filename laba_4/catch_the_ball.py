@@ -19,19 +19,24 @@ score = 0
 
 def new_ball():
     '''
-    Создает новый шарик с цетром в точке (х, у) и радиуса r
+    Создает параметры нового шарика с цетром в точке (х, у) и радиуса r, цвета color
 
     '''
-    global x, y, r
+    global x, y, r, color
     x = randint(100,700)
     y = randint(100,500)
     r = randint(30,50)
     color = COLORS[randint(0, 5)]
+    
+def draw_ball(screen, x, y, r, color):
+    '''
+    Рисует шарик с задаными параметрами на экране
+    '''
     circle(screen, color, (x, y), r)
 
 def count(event):
     '''
-    Ведет подсчет очков
+    Ведет подсчет очков (обрабатывает клик)
 
     '''
     global score
@@ -50,6 +55,7 @@ while not finished:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             count(event)
     new_ball()
+    draw_ball(screen, x, y, r, color)
     pygame.display.update()
     screen.fill(BLACK)
 print('Score =', score)
