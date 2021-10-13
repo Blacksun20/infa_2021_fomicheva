@@ -3,6 +3,8 @@ from pygame.draw import *
 from random import randint
 pygame.init()
 
+player = input('Enter your name:')
+
 FPS = 60
 width = 1200
 height = 900
@@ -48,15 +50,19 @@ def count(event):
     for ball in balls:
        if (event.pos[1] - ball[1])**2+(event.pos[0] - ball[0])**2 <= ball[2]**2:
            balls.remove(ball)
+           balls.append(new_ball())
+           give_speed()
            score +=1
     for box in boxes:
         if(event.pos[0]-(box[1]+box[3]/2))**2+(event.pos[1]-(box[2]+box[3]/2))**2<=box[3]**2/2:
             boxes.remove(box)
+            boxes.append(new_box())
+            give_speed()
             score+=2
             
 def gen_speed(object_t, index):
     '''
-    Создает скорости для шариков
+    Создает скорости для шариков и квадратиков
 
     '''
     vx = randint(-1, 1)
@@ -66,7 +72,7 @@ def gen_speed(object_t, index):
     
 def give_speed():
     '''
-    Присваивает скорости шарикам
+    Присваивает скорости шарикам и квадратикам
 
     '''
     for ball in balls:
@@ -89,6 +95,10 @@ def move_balls():
                 ball[5]*=-1
                 
 def new_box():
+    '''
+    Создает параметры квадратика (m, n) - левый угол, l - длина стороны
+
+    '''
     m = randint(100, 700)
     n = randint(100, 500)
     l = randint(30, 50)
@@ -96,9 +106,18 @@ def new_box():
     return[color, m, n, l]
 
 def draw_box():
+    '''
+    Рисует квадратик
+
+    '''
     for box in boxes:
         rect(screen, box[0], (box[1], box[2], box[3], box[3]))
+        
 def move_boxes():
+    '''
+    Описывает движение квадратиков
+
+    '''
     for box in boxes:
         box[1]+=box[4]
         box[2]+=box[5]
@@ -115,10 +134,13 @@ nomber_boxes = randint(5, 10)
 balls = [new_ball() for n in range(nomber_balls)]
 boxes = [new_box() for n in range(nomber_boxes)]
 time = 8
+play_time = 60000
 give_speed()
 
 while not finished:
     clock.tick(FPS)
+    if pygame.time.get_ticks() >= play_time:
+        finished = True
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             finished = True
@@ -130,6 +152,10 @@ while not finished:
     move_boxes()
     pygame.display.update()
     screen.fill(BLACK)
-print('Score =', score)
+print('Nice work,', player, '! Your score ', score)
+result = str((player, score))
+f = open('scores.txt', 'a')
+f.write(result)
+f.close()
 
 pygame.quit()
