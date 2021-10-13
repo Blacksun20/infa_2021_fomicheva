@@ -3,7 +3,7 @@ from pygame.draw import *
 from random import randint
 pygame.init()
 
-FPS = 2
+FPS = 60
 screen = pygame.display.set_mode((1200, 900))
 
 RED = (255, 0, 0)
@@ -22,17 +22,19 @@ def new_ball():
     Создает параметры нового шарика с цетром в точке (х, у) и радиуса r, цвета color
 
     '''
-    global x, y, r, color
-    x = randint(100,700)
-    y = randint(100,500)
-    r = randint(30,50)
+    x = randint(100, 700)
+    y = randint(100, 500)
+    r = randint(30, 50)
     color = COLORS[randint(0, 5)]
+    return [x, y, r, color]
+
     
-def draw_ball(screen, x, y, r, color):
+def draw_ball():
     '''
     Рисует шарик с задаными параметрами на экране
     '''
-    circle(screen, color, (x, y), r)
+    for ball in balls:
+        circle(screen, ball[3], (ball[0], ball[1]), ball[2])
 
 def count(event):
     '''
@@ -40,12 +42,16 @@ def count(event):
 
     '''
     global score
-    if (event.pos[1] - y)**2+(event.pos[0] - x)**2 <= r**2:
-        score +=1
+    for ball in balls:
+       if (event.pos[1] - ball[1])**2+(event.pos[0] - ball[0])**2 <= ball[2]**2:
+           balls.remove(ball)
+           score +=1
 
 pygame.display.update()
 clock = pygame.time.Clock()
 finished = False
+nomber = randint(5, 10)
+balls = [new_ball() for n in range(nomber)]
 
 while not finished:
     clock.tick(FPS)
@@ -54,8 +60,7 @@ while not finished:
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
             count(event)
-    new_ball()
-    draw_ball(screen, x, y, r, color)
+    draw_ball()
     pygame.display.update()
     screen.fill(BLACK)
 print('Score =', score)
