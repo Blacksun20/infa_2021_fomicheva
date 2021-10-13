@@ -49,15 +49,36 @@ def count(event):
        if (event.pos[1] - ball[1])**2+(event.pos[0] - ball[0])**2 <= ball[2]**2:
            balls.remove(ball)
            score +=1
+    for box in boxes:
+        if(event.pos[0]-(box[1]+box[3]/2))**2+(event.pos[1]-(box[2]+box[3]/2))**2<=box[3]**2/2:
+            boxes.remove(box)
+            score+=2
+            
 def gen_speed(object_t, index):
+    '''
+    Создает скорости для шариков
+
+    '''
     vx = randint(-1, 1)
     vy = randint(-1, 1)
     object_t[index].append(vx)
     object_t[index].append(vy)
+    
 def give_speed():
+    '''
+    Присваивает скорости шарикам
+
+    '''
     for ball in balls:
         gen_speed(balls, balls.index(ball))
+    for box in boxes:
+        gen_speed(boxes, boxes.index(box))
+        
 def move_balls():
+    '''
+    Описывает движение шариков
+
+    '''
     for ball in balls:
         for t in range(time):
             ball[0]+=ball[4]
@@ -66,12 +87,33 @@ def move_balls():
                 ball[4]*=-1
             if ball[1]<=ball[2]+1 or ball[1]>=height-ball[2]:
                 ball[5]*=-1
+                
+def new_box():
+    m = randint(100, 700)
+    n = randint(100, 500)
+    l = randint(30, 50)
+    color = COLORS[randint(0,5)]
+    return[color, m, n, l]
+
+def draw_box():
+    for box in boxes:
+        rect(screen, box[0], (box[1], box[2], box[3], box[3]))
+def move_boxes():
+    for box in boxes:
+        box[1]+=box[4]
+        box[2]+=box[5]
+        if box[1]<1 or box[1]>=width-box[3]:
+            box[4]*=-1
+        if box[2]<1 or box[2]>=height-box[3]:
+            box[5]*=-1
 
 pygame.display.update()
 clock = pygame.time.Clock()
 finished = False
-nomber = randint(5, 10)
-balls = [new_ball() for n in range(nomber)]
+nomber_balls = randint(5, 10)
+nomber_boxes = randint(5, 10)
+balls = [new_ball() for n in range(nomber_balls)]
+boxes = [new_box() for n in range(nomber_boxes)]
 time = 8
 give_speed()
 
@@ -83,7 +125,9 @@ while not finished:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             count(event)
     draw_ball()
+    draw_box()
     move_balls()
+    move_boxes()
     pygame.display.update()
     screen.fill(BLACK)
 print('Score =', score)
