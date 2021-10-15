@@ -18,6 +18,7 @@ GREEN = (0, 255, 0)
 MAGENTA = (255, 0, 255)
 CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
 score = 0
@@ -59,6 +60,8 @@ def count(event):
             boxes.append(new_box())
             give_speed()
             score+=2
+  
+    
             
 def gen_speed(object_t, index):
     '''
@@ -79,6 +82,7 @@ def give_speed():
         gen_speed(balls, balls.index(ball))
     for box in boxes:
         gen_speed(boxes, boxes.index(box))
+    
         
 def move_balls():
     '''
@@ -119,12 +123,14 @@ def move_boxes():
 
     '''
     for box in boxes:
-        box[1]+=box[4]
-        box[2]+=box[5]
-        if box[1]<1 or box[1]>=width-box[3]:
-            box[4]*=-1
-        if box[2]<1 or box[2]>=height-box[3]:
-            box[5]*=-1
+        for t in range(time):
+           box[1]+=box[4]
+           box[2]+=box[5]
+           if box[1]<1 or box[1]>=width-box[3]:
+              box[4]*=-1
+           if box[2]<1 or box[2]>=height-box[3]:
+              box[5]*=-1
+    
 
 pygame.display.update()
 clock = pygame.time.Clock()
@@ -133,6 +139,7 @@ nomber_balls = randint(5, 10)
 nomber_boxes = randint(5, 10)
 balls = [new_ball() for n in range(nomber_balls)]
 boxes = [new_box() for n in range(nomber_boxes)]
+enemies = []
 time = 8
 play_time = 60000
 give_speed()
@@ -151,7 +158,7 @@ while not finished:
     move_balls()
     move_boxes()
     pygame.display.update()
-    screen.fill(BLACK)
+    screen.fill(WHITE)
 print('Nice work,', player, '! Your score ', score)
 result = str((player, score))
 f = open('scores.txt', 'a')
