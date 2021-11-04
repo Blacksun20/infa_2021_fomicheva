@@ -27,8 +27,7 @@ class Ball:
         """ Конструктор класса ball
 
         Args:
-        x - начальное положение мяча по горизонтали
-        y - начальное положение мяча по вертикали
+        obj - пушка, выпускающая снаряд
         """
         self.screen = screen
         self.x = obj.x
@@ -66,6 +65,10 @@ class Ball:
                 self.y = self.y + self.vy + g/2
 
     def draw(self):
+        """
+        Отображает снаряд на экране
+
+        """
         pygame.draw.circle(
             self.screen,
             self.color,
@@ -90,6 +93,10 @@ class Ball:
 
 class Gun:
     def __init__(self, screen):
+        """
+        Конструктор класса gun. Аргумент - экран, где находится пушка
+
+        """
         self.screen = screen
         self.f2_power = 10
         self.f2_on = 0
@@ -139,9 +146,15 @@ class Gun:
             self.color = GREY
 
     def draw(self):
+        """
+        Отображает пушку на экране
+        """
         pygame.draw.line(self.screen, self.color, (self.x, self.y), (self.x + math.cos(self.an) * self.f2_power, self.y - math.sin(self.an) * self.f2_power), 2)
 
     def power_up(self):
+        """
+        Выбирает цвет пушки в зависимости от силы выстрела
+        """
         if self.f2_on:
             if self.f2_power < 100:
                 self.f2_power += 1
@@ -149,6 +162,9 @@ class Gun:
         else:
             self.color = GREY
     def move(self):
+        """
+        Отвечает за перемещение пушки
+        """
         for t in range(2):
             self.x += self.v
             if self.x <= 40 or self.x >= 760:
@@ -157,6 +173,9 @@ class Gun:
 
 class Target:
     def __init__ (self, screen):
+        """
+        Конструктор класса target. Аргумент - экран, где находится все
+        """
         self.r = randint(5, 40)
         self.x = randint(self.r, WIDTH - self.r)
         self.y = randint(self.r, 0.8 * HEIGHT - self.r)
@@ -169,6 +188,9 @@ class Target:
         self.type = Target
     
     def move(self):
+        """
+        Отвечает за перемещение мишеней
+        """
         for t in range(2):
             self.x += self.vx
             self.y += self.vy
@@ -178,15 +200,21 @@ class Target:
                 self.vy = -self.vy
 
     def hit(self, points=1):
-        """Попадание шарика в цель."""
+        """Попадание шарика в цель. Начисляет очки"""
         global score
         score += points
 
     def draw(self):
+        """
+        Отображает мишеньки
+        """
         pygame.draw.circle(self.screen, self.color, (self.x, self.y), self.r)
         
 class Box:
     def __init__(self, screen):
+        """
+        Конструктор класса box. Аргумент - экран, где все находится
+        """
         self.l = randint(10, 50)
         self.x = randint(self.l, WIDTH - self.l)
         self.y = randint(self.l, HEIGHT - self.l)
@@ -199,6 +227,9 @@ class Box:
         self.type = Box
     
     def move(self):
+        """
+        Отвечает за перемещение коробочек
+        """
         for t in range(2):
             self.x += self.vx
             self.y += self.vy
@@ -208,10 +239,16 @@ class Box:
                 self.vy = -self.vy
                 
     def hit(self, points = 2):
+        """
+        Начисляет очки за попадание по коробочкам
+        """
         global score
         score += points
     
     def draw(self):
+        """
+        Отображает коробочки 
+        """
         pygame.draw.rect(self.screen, self.color, (self.x - 0.5*self.l, self.y - 0.5*self.l, self.l, self.l))
     
 
