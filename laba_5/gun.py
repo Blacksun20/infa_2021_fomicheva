@@ -23,7 +23,7 @@ HEIGHT = 600
 
 
 class Ball:
-    def __init__(self, screen: pygame.Surface, x=40, y=450):
+    def __init__(self, screen: pygame.Surface, obj):
         """ Конструктор класса ball
 
         Args:
@@ -31,8 +31,8 @@ class Ball:
         y - начальное положение мяча по вертикали
         """
         self.screen = screen
-        self.x = x
-        self.y = y
+        self.x = obj.x
+        self.y = obj.y
         self.r = 10
         self.vx = 0
         self.vy = 0
@@ -97,6 +97,7 @@ class Gun:
         self.color = GREY
         self.x = 40
         self.y = 450
+        self.v = 0.5
 
     def fire2_start(self, event):
         self.f2_on = 1
@@ -109,11 +110,14 @@ class Gun:
         """
         global balls, bullet
         bullet += 1
-        new_ball = Ball(self.screen)
+        new_ball = Ball(self.screen, gun)
         new_ball.r += 5
         if (event.pos[0] - 40)!=0:
             tg = -(event.pos[1] - 450)/(event.pos[0] - 40)
-            self.an = math.atan(tg)
+            if tg>=0:
+               self.an = math.atan(tg)
+            else:
+                self.an = math.pi + math.atan(tg)
         new_ball.vx = self.f2_power * math.cos(self.an)
         new_ball.vy = - self.f2_power * math.sin(self.an)
         balls.append(new_ball)
@@ -125,7 +129,10 @@ class Gun:
         if event:
              if (event.pos[0] - 40)!=0:
                  tg = -(event.pos[1] - 450)/(event.pos[0] - 40)
-                 self.an = math.atan(tg)
+                 if tg>=0:
+                    self.an = math.atan(tg)
+                 else:
+                     self.an = math.pi + math.atan(tg)
         if self.f2_on:
             self.color = RED
         else:
@@ -141,6 +148,11 @@ class Gun:
             self.color = RED
         else:
             self.color = GREY
+    def move(self):
+        for t in range(2):
+            self.x += self.v
+            if self.x <= 40 or self.x >= 760:
+               self.v = -self.v
 
 
 class Target:
@@ -178,8 +190,6 @@ class Box:
         self.l = randint(10, 50)
         self.x = randint(self.l, WIDTH - self.l)
         self.y = randint(self.l, HEIGHT - self.l)
-        self.x1 = self.x - 0.5*self.l
-        self.y1 = self.y - 0.5*self.l
         self.color = PURPLE
         self.is_alive = True
         self.screen = screen
@@ -190,18 +200,19 @@ class Box:
     
     def move(self):
         for t in range(2):
-            self.x+=self.vx
-            self.y+=self.vy
-            if self.x1<=1 or self.x1>=self.l:
+            self.x += self.vx
+            self.y += self.vy
+            if self.x<=0.5*self.l or self.x>=WIDTH - 0.5*self.l:
                 self.vx = -self.vx
-            if self.y1 <=1 or self.y1>=self.l:
+            if self.y <=0.5*self.l or self.y>=HEIGHT - 0.5*self.l:
                 self.vy = -self.vy
+                
     def hit(self, points = 2):
         global score
         score += points
     
     def draw(self):
-        pygame.draw.rect(self.screen, self.color, (self.x1, self.y1, self.l, self.l))
+        pygame.draw.rect(self.screen, self.color, (self.x - 0.5*self.l, self.y - 0.5*self.l, self.l, self.l))
     
 
 
@@ -223,11 +234,13 @@ finished = False
 while not finished:
     screen.fill(WHITE)
     gun.draw()
+    gun.move()
     for target in targets:
         target.draw()
     for b in balls:
         b.draw()
     box.draw()
+    box.move()
     pygame.display.update()
 
     clock.tick(FPS)
@@ -249,14 +262,13 @@ while not finished:
                 targets.remove(target)
                 target.hit()
                 targets.append(Target(screen))
-        box.move()
-        for b in balls:
-            if b.hittest(box) and box.live!=0:
-                box.live-=1
-            if box.live==0:
-                box.hit()
-                del box
-                box = Box(screen)
+    for b in balls:
+        if b.hittest(box) and box.live!=0:
+            box.live-=1
+        if box.live==0:
+            box.hit()
+            del box
+            box = Box(screen)
     gun.power_up()
 print(score)
 pygame.quit()
