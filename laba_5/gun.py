@@ -15,6 +15,7 @@ CYAN = 0x00FFCC
 BLACK = (0, 0, 0)
 WHITE = 0xFFFFFF
 GREY = 0x7D7D7D
+PURPLE = (102, 0, 153)
 GAME_COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
 WIDTH = 800
@@ -80,7 +81,10 @@ class Ball:
         Returns:
             Возвращает True в случае столкновения мяча и цели. В противном случае возвращает False.
         """
-        return (self.x - obj.x) ** 2 + (self.y - obj.y) ** 2 <= (self.r + obj.r) ** 2
+        if obj.type==Target:
+            return (self.x - obj.x) ** 2 + (self.y - obj.y) ** 2 <= (self.r + obj.r) ** 2
+        if obj.type == Box:
+            return (self.x - obj.x) ** 2 + (self.y - obj.y) ** 2 <= (0.5 * obj.l * math.sqrt(2) + self.r) ** 2
         
 
 
@@ -145,12 +149,12 @@ class Target:
         self.x = randint(self.r, WIDTH - self.r)
         self.y = randint(self.r, 0.8 * HEIGHT - self.r)
         self.color = RED
-        self.points = 0
         self.is_alive = True
         self.screen = screen
         self.live = 1
         self.vx = randint(-1, 1)
         self.vy = randint(-1, 1)
+        self.type = Target
     
     def move(self):
         for t in range(2):
@@ -168,6 +172,37 @@ class Target:
 
     def draw(self):
         pygame.draw.circle(self.screen, self.color, (self.x, self.y), self.r)
+        
+class Box:
+    def __init__(self, screen):
+        self.l = randint(10, 50)
+        self.x = randint(self.l, WIDTH - self.l)
+        self.y = randint(self.l, HEIGHT - self.l)
+        self.x1 = self.x - 0.5*self.l
+        self.y1 = self.y - 0.5*self.l
+        self.color = PURPLE
+        self.is_alive = True
+        self.screen = screen
+        self.live = 2
+        self.vx = randint(-1, 1)
+        self.vy = randint(-1, 1)
+        self.type = Box
+    
+    def move(self):
+        for t in range(2):
+            self.x+=self.vx
+            self.y+=self.vy
+            if self.x1<=1 or self.x1>=self.l:
+                self.vx = -self.vx
+            if self.y1 <=1 or self.y1>=self.l:
+                self.vy = -self.vy
+    def hit(self, points = 2):
+        global score
+        score += points
+    
+    def draw(self):
+        pygame.draw.rect(self.screen, self.color, (self.x1, self.y1, self.l, self.l))
+    
 
 
 pygame.init()
@@ -176,6 +211,7 @@ bullet = 0
 balls = []
 number_of_targets = 2
 targets = []
+box = Box(screen)
 score = 0
 for n in range(number_of_targets):
     targets.append(Target(screen))
@@ -191,6 +227,7 @@ while not finished:
         target.draw()
     for b in balls:
         b.draw()
+    box.draw()
     pygame.display.update()
 
     clock.tick(FPS)
@@ -212,6 +249,14 @@ while not finished:
                 targets.remove(target)
                 target.hit()
                 targets.append(Target(screen))
+        box.move()
+        for b in balls:
+            if b.hittest(box) and box.live!=0:
+                box.live-=1
+            if box.live==0:
+                box.hit()
+                del box
+                box = Box(screen)
     gun.power_up()
 print(score)
 pygame.quit()
